@@ -1,15 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --black: #000000;
-  --navy: #060F28;
-  --navy2: #0A1535;
-  --cyan: #00C8FF;
-  --cyan2: #0099CC;
-  --white: #F0F4FF;
-  --dim: rgba(240,244,255,0.45);
-  --dimmer: rgba(240,244,255,0.22);
-  --border: rgba(0,200,255,0.1);
+  --black:   #060E18;
+  --navy:    #0B1E2D;
+  --navy2:   #0F2538;
+  --navy3:   #142D44;
+  --cream:   #EEE8D5;
+  --cyan:    #00C8FF;
+  --white:   #F0F4FF;
+  --dim:     rgba(240,244,255,0.5);
+  --dimmer:  rgba(240,244,255,0.25);
+  --border:  rgba(0,200,255,0.1);
   --border2: rgba(0,200,255,0.06);
 }
 
@@ -18,34 +21,33 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--black);
   color: var(--white);
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: 'Barlow', sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
 ::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-track { background: var(--black); }
 ::-webkit-scrollbar-thumb { background: rgba(0,200,255,0.3); border-radius: 2px; }
 
 a { color: inherit; text-decoration: none; }
 button { cursor: pointer; }
 img { max-width: 100%; }
 
-/* Shared buttons */
 .btn-primary {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px; font-weight: 500;
+  font-size: 11px; font-weight: 500;
   letter-spacing: 0.12em; text-transform: uppercase;
   padding: 14px 32px;
-  background: var(--cyan); color: #000;
+  background: var(--cyan); color: var(--navy);
   border: none; border-radius: 2px;
   transition: background 0.2s; cursor: pointer;
 }
-.btn-primary:hover { background: #fff; }
+.btn-primary:hover { background: var(--cream); }
 
 .btn-ghost {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px; font-weight: 500;
+  font-size: 11px; font-weight: 500;
   letter-spacing: 0.12em; text-transform: uppercase;
   padding: 13px 32px;
   background: transparent; color: var(--white);
@@ -64,7 +66,6 @@ img { max-width: 100%; }
 }
 .btn-danger:hover { background: rgba(255,68,68,0.1); }
 
-/* Shared section layout */
 .section-wrap {
   max-width: 960px; margin: 0 auto;
   padding: 100px 40px 80px;
@@ -77,33 +78,33 @@ img { max-width: 100%; }
   color: rgba(0,200,255,0.5); margin-bottom: 8px;
 }
 .sec-h {
-  font-family: 'Orbitron', sans-serif; font-weight: 700;
-  font-size: clamp(22px, 3vw, 36px);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(36px, 5vw, 56px);
+  letter-spacing: 0.04em;
   color: var(--white); margin-bottom: 12px;
+  line-height: 1;
 }
 .sec-sub {
-  font-size: 13px; color: var(--dim); line-height: 1.7;
-  max-width: 500px; margin-bottom: 0;
+  font-size: 15px; color: var(--dim); line-height: 1.7;
+  max-width: 500px; margin-bottom: 0; font-weight: 300;
 }
 .divider {
   width: 40px; height: 2px;
   background: var(--cyan); margin: 16px 0 36px;
 }
 
-/* Admin form inputs */
 .admin-input {
   width: 100%;
-  background: #0a0a0a;
+  background: rgba(11,30,45,0.8);
   border: 1px solid rgba(0,200,255,0.15);
   border-radius: 3px;
   padding: 10px 14px;
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 13px; color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px; color: var(--white);
   outline: none; transition: border-color 0.2s;
 }
 .admin-input:focus { border-color: rgba(0,200,255,0.5); }
 .admin-input::placeholder { color: var(--dimmer); }
-
 textarea.admin-input { resize: vertical; min-height: 100px; }
 
 .admin-label {

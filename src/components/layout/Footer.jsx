@@ -3,13 +3,16 @@ import styles from './Footer.module.css'
 
 export default function Footer() {
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-
   return (
-    <footer className={styles.footer}>
+    <footer className={styles.footer} role="contentinfo">
       <div className={styles.top}>
         <div className={styles.brand}>
-          <div className={styles.logo}>MOB<span>TECH</span> SYNERGIES LTD</div>
-          <p className={styles.tagline}>// Transforming Ideas Digital</p>
+          <img src="https://res.cloudinary.com/drefakuj9/image/upload/v1774577980/WhatsApp_Image_2026-03-27_at_03.12.01_jwlakp.jpg"
+            alt="Mobtech Synergies Ltd" width="44" height="44" className={styles.footLogo} />
+          <div>
+            <div className={styles.logo}>MOB<span>TECH</span> SYNERGIES LTD</div>
+            <p className={styles.tagline}>// Transforming Ideas Digital</p>
+          </div>
         </div>
         <div className={styles.cols}>
           <div className={styles.col}>
@@ -28,6 +31,7 @@ export default function Footer() {
             <div className={styles.colTitle}>Connect</div>
             <Link to="/blog">Blog</Link>
             <button onClick={() => scrollTo('contact')}>Contact</button>
+            <a href="https://www.linkedin.com/company/mobtech-synergies-ltd" target="_blank" rel="noopener noreferrer">LinkedIn</a>
           </div>
         </div>
       </div>

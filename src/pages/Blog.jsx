@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import SEO from '../components/layout/SEO'
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
 import styles from './Blog.module.css'
@@ -19,6 +20,12 @@ export default function Blog() {
 
   return (
     <>
+      <SEO
+        title="Blog — Engineering Insights & Updates"
+        description="Engineering insights, product updates, tech innovation stories, and ideas from the Mobtech Synergies team. Gacom, VMS, and the future of African tech."
+        url="/blog"
+        type="blog"
+      />
       <Navbar />
       <div className={styles.page}>
         <div className={styles.hero}>
@@ -35,7 +42,7 @@ export default function Blog() {
           <div className={styles.grid}>
             {posts.map(p => (
               <Link key={p.id} to={`/blog/${p.slug}`} className={styles.card}>
-                {p.cover_image && <img src={p.cover_image} alt={p.title} className={styles.cardImg} />}
+                {p.cover_image && <img src={p.cover_image} alt={p.title} className={styles.cardImg} width="400" height="200" />}
                 <div className={styles.cardBody}>
                   <div className={styles.cardDate}>
                     {new Date(p.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
