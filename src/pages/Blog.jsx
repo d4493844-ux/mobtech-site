@@ -10,6 +10,7 @@ export default function Blog() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!supabase) { setLoading(false); return }
     supabase.from('blog_posts').select('*')
       .eq('published', true)
       .order('created_at', { ascending: false })
@@ -26,7 +27,6 @@ export default function Blog() {
           <div className="divider" />
           <p className={styles.heroSub}>Engineering insights, product updates, and ideas from the Mobtech team.</p>
         </div>
-
         {loading ? (
           <div className={styles.loading}>Loading posts...</div>
         ) : posts.length === 0 ? (

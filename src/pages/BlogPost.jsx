@@ -12,6 +12,7 @@ export default function BlogPost() {
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
+    if (!supabase) { setNotFound(true); setLoading(false); return }
     supabase.from('blog_posts').select('*')
       .eq('slug', slug)
       .eq('published', true)
@@ -23,12 +24,7 @@ export default function BlogPost() {
       })
   }, [slug])
 
-  if (loading) return (
-    <>
-      <Navbar />
-      <div className={styles.loading}>Loading post...</div>
-    </>
-  )
+  if (loading) return <><Navbar /><div className={styles.loading}>Loading post...</div></>
 
   if (notFound) return (
     <>
@@ -62,10 +58,7 @@ export default function BlogPost() {
           <h1 className={styles.title}>{post.title}</h1>
           {post.excerpt && <p className={styles.excerpt}>{post.excerpt}</p>}
           <div className={styles.divider} />
-          <div
-            className={styles.content}
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+          <div className={styles.content} dangerouslySetInnerHTML={{ __html: post.content }} />
         </div>
       </article>
       <Footer />

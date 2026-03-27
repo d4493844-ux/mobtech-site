@@ -16,20 +16,18 @@ function initials(name) {
 
 export default function Team() {
   const [members, setMembers] = useState(FALLBACK)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!supabase) return
     supabase
       .from('team_members')
       .select('*')
       .order('display_order')
       .then(({ data, error }) => {
         if (!error && data && data.length > 0) setMembers(data)
-        setLoading(false)
       })
   }, [])
 
-  // Group by department
   const departments = [...new Set(members.map(m => m.department || 'General'))]
 
   return (
@@ -37,7 +35,6 @@ export default function Team() {
       <div className="sec-pre">// 05 — Team</div>
       <div className="sec-h">THE BUILDERS</div>
       <div className="divider" />
-
       {departments.map(dept => (
         <div key={dept} className={styles.deptGroup}>
           <div className={styles.deptLabel}>{dept}</div>
