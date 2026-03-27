@@ -1,0 +1,51 @@
+.deptGroup { margin-bottom: 40px; }
+
+.deptLabel {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(0,200,255,0.4); margin-bottom: 16px;
+  padding-bottom: 8px; border-bottom: 1px solid rgba(0,200,255,0.06);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  border: 1px solid rgba(0,200,255,0.09);
+  border-radius: 4px; padding: 24px 16px;
+  text-align: center; background: #060606;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: rgba(0,200,255,0.3); }
+
+.avatar {
+  width: 60px; height: 60px; border-radius: 50%;
+  object-fit: cover; margin: 0 auto 14px;
+  border: 1px solid rgba(0,200,255,0.25);
+  display: block;
+}
+
+.avatarText {
+  width: 60px; height: 60px; border-radius: 50%;
+  border: 1px solid rgba(0,200,255,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700;
+  color: var(--cyan); margin: 0 auto 14px;
+  background: rgba(0,200,255,0.04);
+}
+
+.name { font-size: 13px; font-weight: 500; color: var(--white); margin-bottom: 4px; }
+
+.role {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; color: var(--cyan);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+
+.bio {
+  font-size: 11px; color: var(--dim);
+  line-height: 1.6; margin-top: 10px;
+}

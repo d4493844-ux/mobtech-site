@@ -1,0 +1,40 @@
+.page {
+  min-height: 100vh; display: flex;
+  align-items: center; justify-content: center;
+  background: #000; padding: 20px;
+}
+.box {
+  width: 100%; max-width: 380px;
+  background: #080808;
+  border: 1px solid rgba(0,200,255,0.15);
+  border-radius: 4px; padding: 40px 32px;
+}
+.brand {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900; font-size: 18px;
+  color: var(--white); margin-bottom: 24px; text-align: center;
+}
+.brand span { color: var(--cyan); }
+.title {
+  font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.1em; color: var(--white); margin-bottom: 6px; text-align: center;
+}
+.sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; color: var(--dim);
+  text-align: center; margin-bottom: 28px;
+}
+.error {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; color: #ff4444;
+  margin-top: 10px; padding: 8px 12px;
+  border: 1px solid rgba(255,68,68,0.2);
+  border-radius: 2px;
+}
+.back {
+  margin-top: 20px; text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; letter-spacing: 0.1em;
+}
+.back a { color: var(--dimmer); text-decoration: none; transition: color 0.2s; }
+.back a:hover { color: var(--cyan); }

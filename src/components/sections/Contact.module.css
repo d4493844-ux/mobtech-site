@@ -1,0 +1,15 @@
+.wrap { display: grid; grid-template-columns: 1fr 1.4fr; gap: 40px; }
+
+.line { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid rgba(0,200,255,0.06); }
+.dot { width: 5px; height: 5px; border-radius: 50%; background: var(--cyan); margin-top: 6px; flex-shrink: 0; }
+.lbl { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cyan); margin-bottom: 3px; }
+.val { font-size: 13px; color: var(--white); }
+
+.form { background: #080808; border: 1px solid rgba(0,200,255,0.1); border-radius: 4px; padding: 28px; }
+.formTitle { font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700; color: var(--white); margin-bottom: 20px; letter-spacing: 0.05em; }
+.formGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+@media (max-width: 768px) {
+  .wrap { grid-template-columns: 1fr; }
+  .formGrid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,20 @@
+.page { max-width: 960px; margin: 0 auto; padding: 120px 40px 80px; }
+.hero { margin-bottom: 48px; }
+.heroSub { font-size: 14px; color: var(--dim); line-height: 1.7; max-width: 480px; }
+.loading, .empty { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--dimmer); padding: 60px 0; text-align: center; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2px; }
+
+.card {
+  background: #060606; border: 1px solid rgba(0,200,255,0.08);
+  border-radius: 3px; text-decoration: none; display: block;
+  transition: all 0.25s; overflow: hidden;
+}
+.card:hover { border-color: rgba(0,200,255,0.28); background: #080808; transform: translateY(-2px); }
+
+.cardImg { width: 100%; height: 180px; object-fit: cover; border-bottom: 1px solid rgba(0,200,255,0.08); display: block; }
+.cardBody { padding: 22px 20px; }
+.cardDate { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(0,200,255,0.4); margin-bottom: 10px; }
+.cardTitle { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 15px; color: var(--white); line-height: 1.3; margin-bottom: 10px; }
+.cardExcerpt { font-size: 12px; color: var(--dim); line-height: 1.65; margin-bottom: 16px; }
+.cardLink { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.12em; color: var(--cyan); }

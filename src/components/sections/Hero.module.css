@@ -1,0 +1,82 @@
+.hero {
+  position: relative; min-height: 100vh;
+  display: flex; align-items: center; overflow: hidden;
+}
+
+.canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+}
+
+.inner {
+  position: relative; z-index: 2;
+  padding: 120px 60px 80px;
+  max-width: 760px;
+}
+
+.badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--cyan); border: 1px solid rgba(0,200,255,0.25);
+  padding: 6px 14px; border-radius: 2px; margin-bottom: 28px;
+}
+
+.dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--cyan); display: block;
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.h1 {
+  font-family: 'Orbitron', sans-serif; font-weight: 900;
+  font-size: clamp(36px, 6vw, 68px);
+  line-height: 1.0; letter-spacing: -0.02em;
+  text-transform: uppercase; color: var(--white);
+  margin-bottom: 0;
+}
+
+.accent { color: var(--cyan); display: block; }
+
+.tagline {
+  display: block; margin-top: 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(10px, 1.2vw, 14px);
+  font-weight: 400; letter-spacing: 0.14em;
+  color: rgba(240,244,255,0.2);
+}
+
+.sub {
+  font-size: 14px; color: var(--dim);
+  line-height: 1.75; max-width: 480px;
+  margin: 28px 0 36px; font-weight: 300;
+}
+
+.btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 60px; }
+
+.stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  max-width: 420px;
+  border: 1px solid rgba(0,200,255,0.12);
+  border-radius: 3px; overflow: hidden;
+}
+
+.stat {
+  padding: 18px 20px;
+  background: rgba(6,15,40,0.55);
+}
+.stat + .stat { border-left: 1px solid rgba(0,200,255,0.12); }
+
+.statN {
+  font-family: 'Orbitron', monospace;
+  font-size: 20px; font-weight: 700; color: var(--cyan);
+}
+.statL {
+  font-size: 10px; color: var(--dimmer);
+  letter-spacing: 0.06em; margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .inner { padding: 100px 24px 60px; }
+}
