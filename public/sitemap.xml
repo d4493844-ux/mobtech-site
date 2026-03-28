@@ -8,11 +8,12 @@
     <image:image>
       <image:loc>https://res.cloudinary.com/drefakuj9/image/upload/v1774577980/WhatsApp_Image_2026-03-27_at_03.12.01_jwlakp.jpg</image:loc>
       <image:title>Mobtech Synergies Ltd — Transforming Ideas Digital</image:title>
+      <image:caption>Mobtech Synergies Ltd logo — Nigerian tech and engineering company founded by Akinyemi Akinjide Samuel</image:caption>
     </image:image>
   </url>
   <url>
     <loc>https://mobtechsynergies.com/blog</loc>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
 </urlset>

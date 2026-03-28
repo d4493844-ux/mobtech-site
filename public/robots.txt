@@ -1,6 +1,11 @@
 User-agent: *
 Allow: /
+Allow: /blog
+Allow: /blog/
+
+Disallow: /admin
 Disallow: /admin/
-Disallow: /admin/*
+Disallow: /workspace
+Disallow: /workspace/
 
 Sitemap: https://mobtechsynergies.com/sitemap.xml
