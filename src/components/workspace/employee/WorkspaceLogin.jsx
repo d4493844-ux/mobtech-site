@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { employeeLogin, setEmployee } from '../../lib/workspace'
+import { employeeLogin, setEmployee } from '../../../lib/workspace'
 import '../../../workspace.css'
 
 const LOGO = 'https://res.cloudinary.com/drefakuj9/image/upload/v1774577980/WhatsApp_Image_2026-03-27_at_03.12.01_jwlakp.jpg'
@@ -35,7 +35,6 @@ export default function WorkspaceLogin() {
             Team Workspace
           </div>
         </div>
-
         <form onSubmit={handleLogin}>
           <div style={{ marginBottom: 14 }}>
             <label className="ws-label">Username</label>
@@ -52,7 +51,6 @@ export default function WorkspaceLogin() {
             {loading ? 'Authenticating...' : 'Enter Workspace'}
           </button>
         </form>
-
         <div style={{ marginTop: 24, textAlign: 'center', fontFamily: 'IBM Plex Mono, monospace', fontSize: 9, color: 'rgba(240,244,255,0.2)', letterSpacing: '0.1em' }}>
           Contact your admin if you need access
         </div>
