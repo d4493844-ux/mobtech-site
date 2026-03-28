@@ -18,20 +18,34 @@ export default function LeaderTasks({ employee }) {
 
   const load = async () => {
     setLoading(true)
-    // Get all employees in same brand (excluding self)
-    const [taskRes, memberRes] = await Promise.all([
-      supabase.from('tasks')
-        .select('*,employees(full_name,avatar_color)')
-        .eq('brand_id', employee.brand_id)
-        .order('created_at', { ascending: false }),
-      supabase.from('employees')
-        .select('id,full_name,avatar_color,role,is_leader')
-        .eq('brand_id', employee.brand_id)
+    // Get assigned member IDs for this leader
+    const { data: asnData } = await supabase
+      .from('leader_assignments')
+      .select('member_id')
+      .eq('leader_id', employee.id)
+
+    const memberIds = (asnData || []).map(a => a.member_id)
+
+    // Get tasks for this brand
+    const { data: taskData } = await supabase
+      .from('tasks')
+      .select('*,employees(full_name,avatar_color)')
+      .eq('brand_id', employee.brand_id)
+      .order('created_at', { ascending: false })
+
+    // Get only assigned members (or all brand members if none assigned yet)
+    let memberData = []
+    if (memberIds.length > 0) {
+      const { data } = await supabase
+        .from('employees')
+        .select('id,full_name,avatar_color,role')
+        .in('id', memberIds)
         .eq('is_active', true)
-        .neq('id', employee.id)
-    ])
-    setTasks(taskRes.data || [])
-    setTeamMembers(memberRes.data || [])
+      memberData = data || []
+    }
+
+    setTasks(taskData || [])
+    setTeamMembers(memberData)
     setLoading(false)
   }
 

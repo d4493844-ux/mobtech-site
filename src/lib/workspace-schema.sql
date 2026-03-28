@@ -129,3 +129,19 @@ alter table employees add column if not exists is_leader boolean default false;
 
 -- Update existing leaders (Henshaw John and Henshaw James based on roles)
 -- You can also do this from the admin dashboard after running this SQL
+
+/* ================================================================
+   LEADER ASSIGNMENTS — run in Supabase SQL Editor
+   ================================================================ */
+
+-- Table to track which employees a leader can assign tasks to
+create table if not exists leader_assignments (
+  id uuid default gen_random_uuid() primary key,
+  leader_id uuid references employees(id) on delete cascade,
+  member_id uuid references employees(id) on delete cascade,
+  created_at timestamptz default now(),
+  unique(leader_id, member_id)
+);
+
+alter table leader_assignments enable row level security;
+create policy "allow_all_leader_assignments" on leader_assignments for all using (true) with check (true);
