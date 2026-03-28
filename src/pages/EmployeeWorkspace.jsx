@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { getEmployee, clearEmployee, STATUS, PRIORITY, timeAgo, formatBytes, logActivity } from '../lib/workspace'
+import { getEmployee, clearEmployee, STATUS, PRIORITY, timeAgo, formatBytes, logActivity, isLeader } from '../lib/workspace'
 import WorkspaceLayout from '../components/workspace/shared/WorkspaceLayout'
+import LeaderTasks from '../components/workspace/employee/LeaderTasks'
 import '../workspace.css'
 
 const FILE_ICONS = { pdf: '📄', doc: '📝', docx: '📝', xls: '📊', xlsx: '📊', jpg: '🖼', jpeg: '🖼', png: '🖼', zip: '🗜' }
@@ -21,7 +22,8 @@ function MyTasks({ employee }) {
     setLoading(true)
     const { data } = await supabase.from('tasks').select('*,brands(name,color)')
       .eq('assigned_to', employee.id).order('created_at', { ascending: false })
-    setTasks(data || []); setLoading(false)
+    setTasks(data || [])
+    setLoading(false)
   }
   useEffect(() => { if (supabase) load() }, [])
 
@@ -44,25 +46,20 @@ function MyTasks({ employee }) {
   const addComment = async () => {
     if (!newComment.trim()) return
     await supabase.from('task_comments').insert([{ task_id: selected.id, author: employee.full_name, author_type: 'employee', content: newComment.trim() }])
-    await logActivity(employee.id, `Commented on task`, 'task', selected.id)
+    await logActivity(employee.id, 'Commented on task', 'task', selected.id)
     setNewComment(''); loadComments(selected.id)
   }
 
   const statusFilters = [
-    { key: 'all', label: 'All' },
-    { key: 'todo', label: 'To Do' },
-    { key: 'inprogress', label: 'In Progress' },
-    { key: 'review', label: 'Review' },
-    { key: 'completed', label: 'Done' },
-    { key: 'blocked', label: 'Blocked' },
+    { key: 'all', label: 'All' }, { key: 'todo', label: 'To Do' },
+    { key: 'inprogress', label: 'In Progress' }, { key: 'review', label: 'Review' },
+    { key: 'completed', label: 'Done' }, { key: 'blocked', label: 'Blocked' },
   ]
-
   const filtered = filter === 'all' ? tasks : tasks.filter(t => t.status === filter)
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: selected ? '1fr 360px' : '1fr', gap: 20 }}>
       <div>
-        {/* STATUS FILTER */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 18, flexWrap: 'wrap' }}>
           {statusFilters.map(f => (
             <button key={f.key} onClick={() => setFilter(f.key)}
@@ -71,7 +68,6 @@ function MyTasks({ employee }) {
             </button>
           ))}
         </div>
-
         {loading ? <div className="ws-empty">Loading tasks...</div>
           : filtered.length === 0 ? <div className="ws-empty"><div className="ws-empty-icon">◻</div>{filter === 'all' ? 'No tasks assigned yet' : `No ${filter} tasks`}</div>
           : filtered.map(t => {
@@ -89,8 +85,6 @@ function MyTasks({ employee }) {
             )
           })}
       </div>
-
-      {/* TASK DETAIL */}
       {selected && (
         <div className="ws-card" style={{ position: 'sticky', top: 0, maxHeight: '88vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -99,21 +93,18 @@ function MyTasks({ employee }) {
           </div>
           {selected.description && <div style={{ fontSize: 13, color: 'rgba(240,244,255,0.5)', lineHeight: 1.65 }}>{selected.description}</div>}
           {selected.due_date && <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 9, color: new Date(selected.due_date) < new Date() ? '#EF4444' : 'rgba(240,244,255,0.4)' }}>Due: {selected.due_date}</div>}
-
           <div>
             <label className="ws-label">Update Status</label>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {Object.entries(STATUS).map(([k, v]) => (
                 <button key={k} onClick={() => updateStatus(selected.id, k)}
-                  style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 8, letterSpacing: '0.08em', padding: '5px 10px', borderRadius: 2, cursor: 'pointer', border: '1px solid', color: v.color, background: selected.status === k ? v.bg : 'transparent', borderColor: v.color + '50' }}>
+                  style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 8, padding: '5px 10px', borderRadius: 2, cursor: 'pointer', border: '1px solid', color: v.color, background: selected.status === k ? v.bg : 'transparent', borderColor: v.color + '50' }}>
                   {v.label}
                 </button>
               ))}
             </div>
           </div>
-
           <div className="ws-divider" />
-
           <div>
             <label className="ws-label">Comments ({comments.length})</label>
             <div style={{ maxHeight: 200, overflowY: 'auto', marginBottom: 10 }}>
@@ -140,28 +131,27 @@ function MyTasks({ employee }) {
   )
 }
 
-// ── MY DOCUMENTS ──────────────────────────────────────────────
+// ── DOCUMENTS ─────────────────────────────────────────────────
 function MyDocuments({ employee }) {
   const [docs, setDocs] = useState([])
   const [loading, setLoading] = useState(true)
-
   useEffect(() => {
     if (!supabase) return
+    const brandFilter = employee.brand_id
+      ? `shared_with_all.eq.true,brand_id.eq.${employee.brand_id}`
+      : 'shared_with_all.eq.true'
     supabase.from('documents').select('*,brands(name,color)')
-      .or(`shared_with_all.eq.true,brand_id.eq.${employee.brand_id || '00000000-0000-0000-0000-000000000000'}`)
-      .order('created_at', { ascending: false })
+      .or(brandFilter).order('created_at', { ascending: false })
       .then(({ data }) => { setDocs(data || []); setLoading(false) })
   }, [])
-
   const download = async (doc) => {
-    await logActivity(employee.id, `Downloaded document: ${doc.name}`, 'document', doc.id)
+    await logActivity(employee.id, `Downloaded: ${doc.name}`, 'document', doc.id)
     window.open(doc.file_url, '_blank')
   }
-
   return (
     <div>
       {loading ? <div className="ws-empty">Loading...</div>
-        : docs.length === 0 ? <div className="ws-empty"><div className="ws-empty-icon">◫</div>No documents shared with you yet</div>
+        : docs.length === 0 ? <div className="ws-empty"><div className="ws-empty-icon">◫</div>No documents shared yet</div>
         : docs.map(d => (
           <div key={d.id} className="ws-doc">
             <div className="ws-doc-icon">{getIcon(d.name)}</div>
@@ -182,9 +172,12 @@ function MyAnnouncements({ employee }) {
   const [list, setList] = useState([])
   useEffect(() => {
     if (!supabase) return
-    const q = supabase.from('announcements').select('*,brands(name,color)').order('created_at', { ascending: false })
-    if (employee.brand_id) q.or(`brand_id.is.null,brand_id.eq.${employee.brand_id}`)
-    q.then(({ data }) => setList(data || []))
+    const filter = employee.brand_id
+      ? `brand_id.is.null,brand_id.eq.${employee.brand_id}`
+      : 'brand_id.is.null'
+    supabase.from('announcements').select('*,brands(name,color)')
+      .or(filter).order('created_at', { ascending: false })
+      .then(({ data }) => setList(data || []))
   }, [])
   const PC = { normal: '#8899BB', important: '#F59E0B', urgent: '#EF4444' }
   return (
@@ -192,7 +185,7 @@ function MyAnnouncements({ employee }) {
       {list.length === 0 ? <div className="ws-empty"><div className="ws-empty-icon">◬</div>No announcements</div>
         : list.map(a => (
           <div key={a.id} className="ws-card" style={{ marginBottom: 2, borderLeft: `2px solid ${PC[a.priority]}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: '#F0F4FF' }}>{a.title}</span>
               {a.priority !== 'normal' && <span className="ws-badge" style={{ color: PC[a.priority], background: 'transparent', borderColor: PC[a.priority] + '40', fontSize: 7 }}>{a.priority}</span>}
             </div>
@@ -204,7 +197,7 @@ function MyAnnouncements({ employee }) {
   )
 }
 
-// ── EMPLOYEE HOME ─────────────────────────────────────────────
+// ── HOME ──────────────────────────────────────────────────────
 function EmployeeHome({ employee }) {
   const [stats, setStats] = useState({ total: 0, inprogress: 0, completed: 0, blocked: 0 })
   useEffect(() => {
@@ -216,30 +209,41 @@ function EmployeeHome({ employee }) {
   }, [])
   return (
     <div>
+      {isLeader(employee) && (
+        <div style={{ background: 'rgba(0,200,255,0.05)', border: '1px solid rgba(0,200,255,0.2)', borderRadius: 3, padding: '12px 16px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 18, color: '#00C8FF' }}>◈</span>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#F0F4FF' }}>You are a Team Leader</div>
+            <div style={{ fontSize: 11, color: 'rgba(240,244,255,0.45)', marginTop: 2 }}>You can assign and manage tasks for your team from the <strong style={{ color: '#00C8FF' }}>Team Tasks</strong> section.</div>
+          </div>
+        </div>
+      )}
       <div className="ws-stats">
         <div className="ws-stat"><div className="ws-stat-n">{stats.total}</div><div className="ws-stat-l">My Tasks</div></div>
         <div className="ws-stat"><div className="ws-stat-n">{stats.inprogress}</div><div className="ws-stat-l">In Progress</div></div>
         <div className="ws-stat"><div className="ws-stat-n">{stats.completed}</div><div className="ws-stat-l">Completed</div></div>
         <div className="ws-stat"><div className="ws-stat-n">{stats.blocked}</div><div className="ws-stat-l">Blocked</div></div>
       </div>
-      <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 18, letterSpacing: '0.04em', marginBottom: 14 }}>Recent Announcements</div>
+      <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 18, letterSpacing: '0.04em', margin: '24px 0 14px' }}>Announcements</div>
       <MyAnnouncements employee={employee} />
     </div>
   )
 }
 
-// ── MAIN EMPLOYEE WORKSPACE ────────────────────────────────────
+// ── MAIN ──────────────────────────────────────────────────────
 export default function EmployeeWorkspace() {
   const navigate = useNavigate()
   const employee = getEmployee()
-
   useEffect(() => { if (!employee) navigate('/workspace/login') }, [])
   if (!employee) return null
+
+  const leader = isLeader(employee)
 
   const navItems = [
     { section: 'Workspace', items: [
       { path: '/workspace', icon: '⬡', label: 'Home' },
       { path: '/workspace/tasks', icon: '◻', label: 'My Tasks' },
+      ...(leader ? [{ path: '/workspace/team-tasks', icon: '◈', label: 'Team Tasks' }] : []),
       { path: '/workspace/documents', icon: '◫', label: 'Documents' },
       { path: '/workspace/announcements', icon: '◬', label: 'Announcements' },
     ]}
@@ -250,6 +254,7 @@ export default function EmployeeWorkspace() {
       <Routes>
         <Route path="/" element={<EmployeeHome employee={employee} />} />
         <Route path="/tasks" element={<MyTasks employee={employee} />} />
+        {leader && <Route path="/team-tasks" element={<LeaderTasks employee={employee} />} />}
         <Route path="/documents" element={<MyDocuments employee={employee} />} />
         <Route path="/announcements" element={<MyAnnouncements employee={employee} />} />
       </Routes>

@@ -119,3 +119,13 @@ on conflict (slug) do nothing;
    Go to Storage → New Bucket → name: "workspace-docs"
    Set to PUBLIC
    ================================================================ */
+
+/* ================================================================
+   ADD LEADER SUPPORT — run this in Supabase SQL Editor
+   ================================================================ */
+
+-- Add is_leader column to employees
+alter table employees add column if not exists is_leader boolean default false;
+
+-- Update existing leaders (Henshaw John and Henshaw James based on roles)
+-- You can also do this from the admin dashboard after running this SQL
