@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
-import { getEmployee, clearEmployee, STATUS, PRIORITY, timeAgo, formatBytes, logActivity } from '../../lib/workspace'
+import { supabase } from '../lib/supabase'
+import { getEmployee, clearEmployee, STATUS, PRIORITY, timeAgo, formatBytes, logActivity } from '../lib/workspace'
 import WorkspaceLayout from '../../components/workspace/shared/WorkspaceLayout'
-import '../../workspace.css'
+import '../workspace.css'
 
 const FILE_ICONS = { pdf: '📄', doc: '📝', docx: '📝', xls: '📊', xlsx: '📊', jpg: '🖼', jpeg: '🖼', png: '🖼', zip: '🗜' }
 const getIcon = (name = '') => FILE_ICONS[name.split('.').pop()?.toLowerCase()] || '📁'
