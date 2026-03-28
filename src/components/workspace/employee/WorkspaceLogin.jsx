@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { employeeLogin, setEmployee } from '../../lib/workspace'
-import '../../workspace.css'
+import '../../../workspace.css'
 
 const LOGO = 'https://res.cloudinary.com/drefakuj9/image/upload/v1774577980/WhatsApp_Image_2026-03-27_at_03.12.01_jwlakp.jpg'
 
