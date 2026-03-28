@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
-import { clearEmployee, getEmployee, getAdminAuth } from '../../../lib/workspace'
+import { clearEmployee, getEmployee } from '../../../lib/workspace'
 import '../../../workspace.css'
 
 const LOGO = 'https://res.cloudinary.com/drefakuj9/image/upload/v1774577980/WhatsApp_Image_2026-03-27_at_03.12.01_jwlakp.jpg'
 
 export default function WorkspaceLayout({ children, title, navItems, isAdmin = false }) {
+  const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
   const employee = getEmployee()
@@ -21,10 +22,24 @@ export default function WorkspaceLayout({ children, title, navItems, isAdmin = f
 
   const initials = (name = '') => name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
 
+  const closeMenu = () => setMenuOpen(false)
+
   return (
     <div className="ws-layout">
+
+      {/* MOBILE TOPBAR */}
+      <div className="ws-mobile-topbar">
+        <div className="ws-mobile-brand">MOB<span>TECH</span></div>
+        <button className="ws-hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
+          <span /><span /><span />
+        </button>
+      </div>
+
+      {/* OVERLAY */}
+      {menuOpen && <div className="ws-overlay" onClick={closeMenu} />}
+
       {/* SIDEBAR */}
-      <aside className="ws-sidebar">
+      <aside className={`ws-sidebar ${menuOpen ? 'ws-open' : ''}`}>
         <div className="ws-sidebar-head">
           <div className="ws-logo">
             <img src={LOGO} alt="Mobtech" />
@@ -53,6 +68,7 @@ export default function WorkspaceLayout({ children, title, navItems, isAdmin = f
                   key={item.path}
                   to={item.path}
                   className={`ws-nav-item ${location.pathname === item.path ? 'active' : ''}`}
+                  onClick={closeMenu}
                 >
                   <span className="icon">{item.icon}</span>
                   {item.label}
@@ -67,9 +83,9 @@ export default function WorkspaceLayout({ children, title, navItems, isAdmin = f
 
         <div className="ws-sidebar-foot">
           {isAdmin && (
-            <Link to="/" style={{ display: 'block', marginBottom: 8, fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', letterSpacing: '0.12em', color: 'rgba(0,200,255,0.4)', textDecoration: 'none' }}>
+            <a href="/" style={{ display: 'block', marginBottom: 8, fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', letterSpacing: '0.12em', color: 'rgba(0,200,255,0.4)', textDecoration: 'none' }}>
               ← View Site
-            </Link>
+            </a>
           )}
           <button className="ws-logout" onClick={logout}>
             {isAdmin ? 'Exit Admin' : 'Logout'}
@@ -82,7 +98,7 @@ export default function WorkspaceLayout({ children, title, navItems, isAdmin = f
         <div className="ws-topbar">
           <div className="ws-page-title">{title}</div>
           <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: '9px', color: 'rgba(240,244,255,0.3)', letterSpacing: '0.12em' }}>
-            {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
           </div>
         </div>
         <div className="ws-content">
