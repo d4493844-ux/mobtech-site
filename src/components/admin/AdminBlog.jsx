@@ -9,6 +9,7 @@ export default function AdminBlog() {
   const [msg, setMsg] = useState('')
 
   const load = async () => {
+    if (!supabase) { setLoading(false); return }
     setLoading(true)
     const { data } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false })
     setPosts(data || [])

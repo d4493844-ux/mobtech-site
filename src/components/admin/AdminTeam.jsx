@@ -13,6 +13,7 @@ export default function AdminTeam() {
   const [msg, setMsg] = useState('')
 
   const load = async () => {
+    if (!supabase) { setLoading(false); return }
     setLoading(true)
     const { data } = await supabase.from('team_members').select('*').order('display_order')
     setMembers(data || [])
