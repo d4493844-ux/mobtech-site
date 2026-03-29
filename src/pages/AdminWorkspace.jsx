@@ -5,6 +5,7 @@ import WsAdminDashboard from '../components/workspace/admin/WsAdminDashboard'
 import WsAdminEmployees from '../components/workspace/admin/WsAdminEmployees'
 import WsAdminTasks from '../components/workspace/admin/WsAdminTasks'
 import WsAdminDocuments from '../components/workspace/admin/WsAdminDocuments'
+import WsAdminTeamContent from '../components/workspace/admin/WsAdminTeamContent'
 import { WsAdminAnnouncements, WsAdminBrands, WsAdminActivity } from '../components/workspace/admin/WsAdminOther'
 import { supabase } from '../lib/supabase'
 
@@ -33,6 +34,7 @@ export default function AdminWorkspace() {
       { path: '/admin/workspace/brands', icon: '◆', label: 'Brands' },
     ]},
     { section: 'Content', items: [
+      { path: '/admin/workspace/team-content', icon: '◉', label: 'Site Team' },
       { path: '/admin/workspace/documents', icon: '◫', label: 'Documents', badge: counts.docs },
       { path: '/admin/workspace/announcements', icon: '◬', label: 'Announcements' },
     ]},
@@ -51,6 +53,7 @@ export default function AdminWorkspace() {
         <Route path="/announcements" element={<WsAdminAnnouncements />} />
         <Route path="/brands" element={<WsAdminBrands />} />
         <Route path="/activity" element={<WsAdminActivity />} />
+        <Route path="/team-content" element={<WsAdminTeamContent />} />
       </Routes>
     </WorkspaceLayout>
   )

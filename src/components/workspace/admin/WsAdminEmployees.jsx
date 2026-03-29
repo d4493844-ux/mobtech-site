@@ -114,8 +114,9 @@ export default function WsAdminEmployees() {
   const unassigned = employees.filter(e => !e.brand_id)
 
   // For assigning modal — show all employees in same brand except the leader
+  // Leaders can assign anyone — HQ staff or any brand
   const assignableMembers = assigning
-    ? employees.filter(e => e.id !== assigning.id && (e.brand_id === assigning.brand_id || !assigning.brand_id))
+    ? employees.filter(e => e.id !== assigning.id && e.is_active)
     : []
 
   return (
@@ -174,8 +175,10 @@ export default function WsAdminEmployees() {
           ))}
           {unassigned.length > 0 && (
             <div style={{ marginBottom: 28 }}>
-              <div style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(240,244,255,0.2)', marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid rgba(0,200,255,0.06)' }}>
-                Not assigned to a brand
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid rgba(0,200,255,0.06)' }}>
+                <span style={{ fontSize: 18, color: '#00C8FF' }}>⬡</span>
+                <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 16, letterSpacing: '0.04em', color: '#00C8FF' }}>Mobtech HQ</span>
+                <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 9, color: 'rgba(240,244,255,0.25)' }}>Parent company — oversees all brands</span>
               </div>
               <EmployeeList members={unassigned} onEdit={openEdit} onToggleActive={toggleActive} onToggleLeader={toggleLeader} onDelete={remove} onAssign={setAssigning} getMemberIds={getMemberIds} initials={initials} />
             </div>
@@ -206,7 +209,7 @@ export default function WsAdminEmployees() {
               <div>
                 <label className="ws-label">Assign to Brand</label>
                 <select className="ws-input" value={form.brand_id} onChange={e => setForm({ ...form, brand_id: e.target.value })}>
-                  <option value="">No brand assigned</option>
+                  <option value="">Mobtech HQ (No brand)</option>
                   {brands.map(b => <option key={b.id} value={b.id}>{b.icon} {b.name}</option>)}
                 </select>
               </div>

@@ -26,12 +26,10 @@ export default function LeaderTasks({ employee }) {
 
     const memberIds = (asnData || []).map(a => a.member_id)
 
-    // Get tasks for this brand
-    const { data: taskData } = await supabase
-      .from('tasks')
-      .select('*,employees(full_name,avatar_color)')
-      .eq('brand_id', employee.brand_id)
-      .order('created_at', { ascending: false })
+    // Get tasks — HQ staff see all, brand staff see their brand
+    let taskQuery = supabase.from('tasks').select('*,employees(full_name,avatar_color),brands(name,color)')
+    if (employee.brand_id) taskQuery = taskQuery.eq('brand_id', employee.brand_id)
+    const { data: taskData } = await taskQuery.order('created_at', { ascending: false })
 
     // Get only assigned members (or all brand members if none assigned yet)
     let memberData = []
@@ -122,13 +120,7 @@ export default function LeaderTasks({ employee }) {
   const pending = tasks.filter(t => !['completed'].includes(t.status)).length
   const done = tasks.filter(t => t.status === 'completed').length
 
-  if (!employee.brand_id) return (
-    <div className="ws-empty">
-      <div className="ws-empty-icon">◈</div>
-      You need to be assigned to a brand to manage tasks.<br />
-      Contact your admin.
-    </div>
-  )
+  // HQ staff (no brand) can still manage tasks — they see all
 
   return (
     <div>
