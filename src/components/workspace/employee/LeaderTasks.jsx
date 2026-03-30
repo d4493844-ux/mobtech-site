@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { STATUS, PRIORITY, timeAgo, logActivity } from '../../../lib/workspace'
 
-const EMPTY = { title: '', description: '', assigned_to: '', priority: 'medium', due_date: '', status: 'todo', brand_id: '' }
+const EMPTY = { title: '', description: '', assigned_to: '', priority: 'medium', due_date: '', start_date: '', duration_type: 'one-time', duration_value: 1, status: 'todo', brand_id: '' }
 
 export default function LeaderTasks({ employee }) {
   const [tasks, setTasks] = useState([])
@@ -92,6 +92,9 @@ export default function LeaderTasks({ employee }) {
       assigned_to: form.assigned_to,
       priority: form.priority,
       due_date: form.due_date || null,
+      start_date: form.start_date || null,
+      duration_type: form.duration_type || 'one-time',
+      duration_value: parseInt(form.duration_value) || 1,
       status: form.status || 'todo',
       brand_id: brandId,
       created_by: employee.full_name,
@@ -334,6 +337,28 @@ export default function LeaderTasks({ employee }) {
                 <input className="ws-input" type="date" value={form.due_date} onChange={e => setForm({ ...form, due_date: e.target.value })} />
               </div>
             </div>
+            <div className="ws-form-row">
+              <div>
+                <label className="ws-label">Start Date</label>
+                <input className="ws-input" type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} />
+              </div>
+              <div>
+                <label className="ws-label">Task Type</label>
+                <select className="ws-input" value={form.duration_type} onChange={e => setForm({ ...form, duration_type: e.target.value })}>
+                  <option value="one-time">One-time task</option>
+                  <option value="daily">Daily — repeats every day</option>
+                  <option value="weekly">Weekly — repeats every week</option>
+                  <option value="monthly">Monthly — repeats every month</option>
+                  <option value="custom">Custom duration</option>
+                </select>
+              </div>
+            </div>
+            {form.duration_type === 'custom' && (
+              <div className="ws-form-full">
+                <label className="ws-label">Duration (days)</label>
+                <input className="ws-input" type="number" min="1" value={form.duration_value} placeholder="Number of days" onChange={e => setForm({ ...form, duration_value: e.target.value })} />
+              </div>
+            )}
             {brands.length > 0 && (
               <div className="ws-form-full">
                 <label className="ws-label">Brand (optional — auto-set from assignee)</label>

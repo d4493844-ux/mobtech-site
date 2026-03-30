@@ -32,21 +32,44 @@ export default function WsAdminDocuments() {
     if (!form.name) return flash('Please enter a document name')
     setUploading(true)
     const ext = file.name.split('.').pop()
-    const path = `docs/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
-    const { data: uploadData, error: uploadError } = await supabase.storage.from('workspace-docs').upload(path, file)
-    if (uploadError) { setUploading(false); return flash('Upload error: ' + uploadError.message) }
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const path = `docs/${Date.now()}_${safeName}`
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('workspace-docs')
+      .upload(path, file, { upsert: false })
+
+    if (uploadError) {
+      setUploading(false)
+      if (uploadError.message?.includes('Bucket not found') || uploadError.statusCode === '400') {
+        return flash('⚠ Storage bucket missing — Go to Supabase → Storage → Create bucket named "workspace-docs" and set it to Public')
+      }
+      return flash('Upload failed: ' + uploadError.message)
+    }
+
     const { data: urlData } = supabase.storage.from('workspace-docs').getPublicUrl(path)
+
     const { error } = await supabase.from('documents').insert([{
-      name: form.name, description: form.description,
+      name: form.name,
+      description: form.description || null,
       brand_id: form.brand_id || null,
       file_url: urlData.publicUrl,
-      file_type: ext, file_size: file.size,
+      file_type: ext,
+      file_size: file.size,
       shared_with_all: form.shared_with_all,
       uploaded_by: 'Admin'
     }])
+
     setUploading(false)
-    if (!error) { flash('✓ Document uploaded'); setShowUpload(false); setFile(null); setForm({ name: '', description: '', brand_id: '', shared_with_all: true }); load() }
-    else flash('Error: ' + error.message)
+    if (!error) {
+      flash('✓ Document uploaded successfully')
+      setShowUpload(false)
+      setFile(null)
+      setForm({ name: '', description: '', brand_id: '', shared_with_all: true })
+      load()
+    } else {
+      flash('Database error: ' + error.message)
+    }
   }
 
   const remove = async (doc) => {

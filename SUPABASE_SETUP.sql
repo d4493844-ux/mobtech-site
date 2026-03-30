@@ -94,3 +94,11 @@ create policy "Public read open waitlists" on waitlists for select using (is_ope
 create policy "Admin all waitlists" on waitlists for all using (true) with check (true);
 create policy "Public insert entries" on waitlist_entries for insert with check (true);
 create policy "Admin all entries" on waitlist_entries for all using (true) with check (true);
+
+-- ================================================================
+-- TASK DURATION — run in Supabase SQL Editor
+-- ================================================================
+alter table tasks add column if not exists duration_type text 
+  check (duration_type in ('one-time','daily','weekly','monthly','custom')) default 'one-time';
+alter table tasks add column if not exists duration_value integer default 1;
+alter table tasks add column if not exists start_date date;

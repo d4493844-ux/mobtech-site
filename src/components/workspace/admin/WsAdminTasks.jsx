@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { STATUS, PRIORITY, timeAgo } from '../../../lib/workspace'
 
-const EMPTY = { title: '', description: '', brand_id: '', assigned_to: '', status: 'todo', priority: 'medium', due_date: '' }
+const EMPTY = { title: '', description: '', brand_id: '', assigned_to: '', status: 'todo', priority: 'medium', due_date: '', start_date: '', duration_type: 'one-time', duration_value: 1 }
 
 export default function WsAdminTasks() {
   const [tasks, setTasks] = useState([])
@@ -43,7 +43,7 @@ export default function WsAdminTasks() {
 
   const save = async () => {
     if (!form.title) return flash('Title required')
-    const payload = { ...form, brand_id: form.brand_id || null, assigned_to: form.assigned_to || null, due_date: form.due_date || null, updated_at: new Date().toISOString() }
+    const payload = { ...form, brand_id: form.brand_id || null, assigned_to: form.assigned_to || null, due_date: form.due_date || null, start_date: form.start_date || null, duration_type: form.duration_type || 'one-time', duration_value: parseInt(form.duration_value) || 1, updated_at: new Date().toISOString() }
     let error
     if (editing === 'new') {
       const res = await supabase.from('tasks').insert([payload]); error = res.error
@@ -231,6 +231,28 @@ export default function WsAdminTasks() {
                 <input className="ws-input" type="date" value={form.due_date} onChange={e => setForm({ ...form, due_date: e.target.value })} />
               </div>
             </div>
+            <div className="ws-form-row">
+              <div>
+                <label className="ws-label">Start Date</label>
+                <input className="ws-input" type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} />
+              </div>
+              <div>
+                <label className="ws-label">Task Type</label>
+                <select className="ws-input" value={form.duration_type} onChange={e => setForm({ ...form, duration_type: e.target.value })}>
+                  <option value="one-time">One-time task</option>
+                  <option value="daily">Daily — repeats every day</option>
+                  <option value="weekly">Weekly — repeats every week</option>
+                  <option value="monthly">Monthly — repeats every month</option>
+                  <option value="custom">Custom duration</option>
+                </select>
+              </div>
+            </div>
+            {form.duration_type === 'custom' && (
+              <div className="ws-form-full">
+                <label className="ws-label">Duration (days)</label>
+                <input className="ws-input" type="number" min="1" value={form.duration_value} placeholder="Number of days" onChange={e => setForm({ ...form, duration_value: e.target.value })} />
+              </div>
+            )}
             <div className="ws-modal-actions">
               <button className="btn-ghost" onClick={() => setEditing(null)}>Cancel</button>
               <button className="btn-primary" onClick={save}>Save Task</button>
