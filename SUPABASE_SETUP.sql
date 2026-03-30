@@ -102,3 +102,72 @@ alter table tasks add column if not exists duration_type text
   check (duration_type in ('one-time','daily','weekly','monthly','custom')) default 'one-time';
 alter table tasks add column if not exists duration_value integer default 1;
 alter table tasks add column if not exists start_date date;
+
+-- ================================================================
+-- CHAT & NOTIFICATIONS — run in Supabase SQL Editor
+-- ================================================================
+
+-- CHAT ROOMS (group + DM)
+create table if not exists chat_rooms (
+  id uuid default gen_random_uuid() primary key,
+  name text,
+  type text not null check (type in ('direct','group','brand','hq')),
+  brand_id uuid references brands(id) on delete cascade,
+  created_by uuid references employees(id) on delete set null,
+  created_at timestamptz default now()
+);
+
+-- ROOM MEMBERS
+create table if not exists chat_members (
+  id uuid default gen_random_uuid() primary key,
+  room_id uuid references chat_rooms(id) on delete cascade,
+  employee_id uuid references employees(id) on delete cascade,
+  last_read timestamptz default now(),
+  created_at timestamptz default now(),
+  unique(room_id, employee_id)
+);
+
+-- MESSAGES
+create table if not exists chat_messages (
+  id uuid default gen_random_uuid() primary key,
+  room_id uuid references chat_rooms(id) on delete cascade,
+  sender_id uuid references employees(id) on delete set null,
+  sender_name text not null,
+  content text not null,
+  message_type text default 'text' check (message_type in ('text','file','system')),
+  file_url text,
+  file_name text,
+  created_at timestamptz default now()
+);
+
+-- NOTIFICATIONS
+create table if not exists notifications (
+  id uuid default gen_random_uuid() primary key,
+  employee_id uuid references employees(id) on delete cascade,
+  type text not null check (type in ('message','task','announcement','mention')),
+  title text not null,
+  body text,
+  link text,
+  is_read boolean default false,
+  created_at timestamptz default now()
+);
+
+-- RLS
+alter table chat_rooms enable row level security;
+alter table chat_members enable row level security;
+alter table chat_messages enable row level security;
+alter table notifications enable row level security;
+
+drop policy if exists "allow_all_chat_rooms" on chat_rooms;
+drop policy if exists "allow_all_chat_members" on chat_members;
+drop policy if exists "allow_all_chat_messages" on chat_messages;
+drop policy if exists "allow_all_notifications" on notifications;
+
+create policy "allow_all_chat_rooms" on chat_rooms for all using (true) with check (true);
+create policy "allow_all_chat_members" on chat_members for all using (true) with check (true);
+create policy "allow_all_chat_messages" on chat_messages for all using (true) with check (true);
+create policy "allow_all_notifications" on notifications for all using (true) with check (true);
+
+-- Enable realtime on messages and notifications
+alter publication supabase_realtime add table chat_messages;
+alter publication supabase_realtime add table notifications;

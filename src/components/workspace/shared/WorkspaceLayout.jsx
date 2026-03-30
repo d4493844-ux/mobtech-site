@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { clearEmployee, getEmployee } from '../../../lib/workspace'
+import NotificationBell from './NotificationBell'
+import ChatPanel from './ChatPanel'
 import '../../../workspace.css'
 
 const LOGO = 'https://res.cloudinary.com/drefakuj9/image/upload/v1774577980/WhatsApp_Image_2026-03-27_at_03.12.01_jwlakp.jpg'

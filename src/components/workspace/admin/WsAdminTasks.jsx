@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { STATUS, PRIORITY, timeAgo } from '../../../lib/workspace'
+import { sendNotification } from '../../../lib/chat'
 
 const EMPTY = { title: '', description: '', brand_id: '', assigned_to: '', status: 'todo', priority: 'medium', due_date: '', start_date: '', duration_type: 'one-time', duration_value: 1 }
 
@@ -50,8 +51,17 @@ export default function WsAdminTasks() {
     } else {
       const res = await supabase.from('tasks').update(payload).eq('id', editing.id); error = res.error
     }
-    if (!error) { flash('✓ Task saved'); setEditing(null); load() }
-    else flash('Error: ' + error.message)
+    if (!error) {
+      flash('✓ Task saved')
+      setEditing(null)
+      load()
+      // Notify assigned employee
+      if (payload.assigned_to) {
+        const title = editing === 'new' ? 'New task assigned to you' : 'Task updated'
+        const body = payload.title
+        await sendNotification(payload.assigned_to, 'task', title, body, '/workspace/tasks')
+      }
+    } else flash('Error: ' + error.message)
   }
 
   const updateStatus = async (taskId, status) => {

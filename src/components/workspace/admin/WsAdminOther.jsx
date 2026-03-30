@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { timeAgo } from '../../../lib/workspace'
+import { sendNotificationToMany } from '../../../lib/chat'
 
 // ── ANNOUNCEMENTS ─────────────────────────────────────────────
 export function WsAdminAnnouncements() {
@@ -23,8 +24,16 @@ export function WsAdminAnnouncements() {
   const save = async () => {
     if (!form.title || !form.content) return flash('Title and content required')
     const { error } = await supabase.from('announcements').insert([{ ...form, brand_id: form.brand_id || null, created_by: 'Admin' }])
-    if (!error) { flash('✓ Announcement posted'); setShow(false); setForm({ title: '', content: '', brand_id: '', priority: 'normal' }); load() }
-    else flash('Error: ' + error.message)
+    if (!error) {
+      flash('✓ Announcement posted')
+      setShow(false)
+      setForm({ title: '', content: '', brand_id: '', priority: 'normal' })
+      load()
+      // Notify all active employees
+      const { data: emps } = await supabase.from('employees').select('id').eq('is_active', true)
+      const ids = (emps || []).map(e => e.id)
+      if (ids.length) await sendNotificationToMany(ids, 'announcement', form.title, form.content, '/workspace/announcements')
+    } else flash('Error: ' + error.message)
   }
 
   const remove = async (id) => {
