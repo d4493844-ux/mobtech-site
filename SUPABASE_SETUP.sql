@@ -57,3 +57,40 @@ select * from (values
   ('Henshaw James', 'Assistant Managing Director', 'Gacom', null, null, 5)
 ) as v(name, role, department, bio, image_url, display_order)
 where not exists (select 1 from team_members limit 1);
+
+-- ================================================================
+-- WAITLIST FEATURE — add to Supabase SQL Editor
+-- ================================================================
+
+create table if not exists waitlists (
+  id uuid default gen_random_uuid() primary key,
+  name text not null,
+  slug text unique not null,
+  description text,
+  brand_id uuid references brands(id) on delete set null,
+  is_open boolean default true,
+  fields jsonb default '[{"key":"name","label":"Full Name","type":"text","required":true},{"key":"email","label":"Email Address","type":"email","required":true}]',
+  thank_you_message text default 'You''re on the list! We''ll be in touch soon.',
+  created_at timestamptz default now()
+);
+
+create table if not exists waitlist_entries (
+  id uuid default gen_random_uuid() primary key,
+  waitlist_id uuid references waitlists(id) on delete cascade,
+  data jsonb not null,
+  ip_hash text,
+  created_at timestamptz default now()
+);
+
+alter table waitlists enable row level security;
+alter table waitlist_entries enable row level security;
+
+drop policy if exists "Public read open waitlists" on waitlists;
+drop policy if exists "Admin all waitlists" on waitlists;
+drop policy if exists "Public insert entries" on waitlist_entries;
+drop policy if exists "Admin all entries" on waitlist_entries;
+
+create policy "Public read open waitlists" on waitlists for select using (is_open = true);
+create policy "Admin all waitlists" on waitlists for all using (true) with check (true);
+create policy "Public insert entries" on waitlist_entries for insert with check (true);
+create policy "Admin all entries" on waitlist_entries for all using (true) with check (true);

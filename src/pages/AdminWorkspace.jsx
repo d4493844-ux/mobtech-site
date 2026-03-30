@@ -6,11 +6,12 @@ import WsAdminEmployees from '../components/workspace/admin/WsAdminEmployees'
 import WsAdminTasks from '../components/workspace/admin/WsAdminTasks'
 import WsAdminDocuments from '../components/workspace/admin/WsAdminDocuments'
 import WsAdminTeamContent from '../components/workspace/admin/WsAdminTeamContent'
+import WsAdminWaitlists from '../components/workspace/admin/WsAdminWaitlists'
 import { WsAdminAnnouncements, WsAdminBrands, WsAdminActivity } from '../components/workspace/admin/WsAdminOther'
 import { supabase } from '../lib/supabase'
 
 export default function AdminWorkspace() {
-  const [counts, setCounts] = useState({ tasks: 0, employees: 0, docs: 0 })
+  const [counts, setCounts] = useState({ tasks: 0, employees: 0, docs: 0, waitlists: 0 })
 
   useEffect(() => {
     if (!supabase) return
@@ -18,8 +19,9 @@ export default function AdminWorkspace() {
       supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('status', 'todo'),
       supabase.from('employees').select('id', { count: 'exact', head: true }).eq('is_active', true),
       supabase.from('documents').select('id', { count: 'exact', head: true }),
-    ]).then(([tasks, emps, docs]) => {
-      setCounts({ tasks: tasks.count || 0, employees: emps.count || 0, docs: docs.count || 0 })
+      supabase.from('waitlists').select('id', { count: 'exact', head: true }).eq('is_open', true),
+    ]).then(([tasks, emps, docs, wl]) => {
+      setCounts({ tasks: tasks.count || 0, employees: emps.count || 0, docs: docs.count || 0, waitlists: wl.count || 0 })
     })
   }, [])
 
@@ -35,6 +37,7 @@ export default function AdminWorkspace() {
     ]},
     { section: 'Content', items: [
       { path: '/admin/workspace/team-content', icon: '◉', label: 'Site Team' },
+      { path: '/admin/workspace/waitlists', icon: '◬', label: 'Waitlists', badge: counts.waitlists },
       { path: '/admin/workspace/documents', icon: '◫', label: 'Documents', badge: counts.docs },
       { path: '/admin/workspace/announcements', icon: '◬', label: 'Announcements' },
     ]},
@@ -54,6 +57,7 @@ export default function AdminWorkspace() {
         <Route path="/brands" element={<WsAdminBrands />} />
         <Route path="/activity" element={<WsAdminActivity />} />
         <Route path="/team-content" element={<WsAdminTeamContent />} />
+        <Route path="/waitlists" element={<WsAdminWaitlists />} />
       </Routes>
     </WorkspaceLayout>
   )

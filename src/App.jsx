@@ -7,6 +7,7 @@ import AdminLogin from './pages/AdminLogin'
 import AdminWorkspace from './pages/AdminWorkspace'
 import EmployeeWorkspace from './pages/EmployeeWorkspace'
 import WorkspaceLogin from './components/workspace/employee/WorkspaceLogin'
+import WaitlistPage from './pages/WaitlistPage'
 import { AdminGuard } from './components/admin/AdminGuard'
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/blog" element={<Blog />} />
       <Route path="/blog/:slug" element={<BlogPost />} />
+      <Route path="/waitlist/:slug" element={<WaitlistPage />} />
       <Route path="/workspace/login" element={<WorkspaceLogin />} />
       <Route path="/workspace/*" element={<EmployeeWorkspace />} />
       <Route path="/admin/login" element={<AdminLogin />} />
