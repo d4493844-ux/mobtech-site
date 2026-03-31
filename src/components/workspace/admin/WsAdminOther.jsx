@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { timeAgo } from '../../../lib/workspace'
 import { sendNotification } from '../../../lib/chat'
-import { sendNotificationToMany } from '../../../lib/chat'
+
 
 // ── ANNOUNCEMENTS ─────────────────────────────────────────────
 export function WsAdminAnnouncements() {
