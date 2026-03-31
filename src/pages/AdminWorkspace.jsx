@@ -7,6 +7,7 @@ import WsAdminTasks from '../components/workspace/admin/WsAdminTasks'
 import WsAdminDocuments from '../components/workspace/admin/WsAdminDocuments'
 import WsAdminTeamContent from '../components/workspace/admin/WsAdminTeamContent'
 import WsAdminWaitlists from '../components/workspace/admin/WsAdminWaitlists'
+import WsAdminChat from '../components/workspace/admin/WsAdminChat'
 import { WsAdminAnnouncements, WsAdminBrands, WsAdminActivity } from '../components/workspace/admin/WsAdminOther'
 import { supabase } from '../lib/supabase'
 
@@ -28,6 +29,7 @@ export default function AdminWorkspace() {
   const navItems = [
     { section: 'Overview', items: [
       { path: '/admin/workspace', icon: '⬡', label: 'Dashboard' },
+      { path: '/admin/workspace/chat', icon: '💬', label: 'Chat' },
       { path: '/admin/workspace/activity', icon: '◎', label: 'Activity Log' },
     ]},
     { section: 'Management', items: [
@@ -58,6 +60,7 @@ export default function AdminWorkspace() {
         <Route path="/activity" element={<WsAdminActivity />} />
         <Route path="/team-content" element={<WsAdminTeamContent />} />
         <Route path="/waitlists" element={<WsAdminWaitlists />} />
+        <Route path="/chat" element={<WsAdminChat />} />
       </Routes>
     </WorkspaceLayout>
   )

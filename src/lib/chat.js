@@ -1,6 +1,6 @@
 import { supabase } from './supabase'
 
-// ── Send notification to an employee ─────────────────────────
+// ── Send notification to employee ────────────────────────────
 export async function sendNotification(employeeId, type, title, body, link = null) {
   if (!supabase || !employeeId) return
   await supabase.from('notifications').insert([{
@@ -8,106 +8,96 @@ export async function sendNotification(employeeId, type, title, body, link = nul
   }])
 }
 
-// ── Send notification to multiple employees ───────────────────
-export async function sendNotificationToMany(employeeIds, type, title, body, link = null) {
-  if (!supabase || !employeeIds?.length) return
-  const rows = employeeIds.map(id => ({ employee_id: id, type, title, body, link }))
-  await supabase.from('notifications').insert(rows)
+// ── Send notification to all members of a room ───────────────
+export async function notifyRoomMembers(roomId, excludeId, type, title, body, link) {
+  if (!supabase) return
+  const { data } = await supabase.from('chat_room_members')
+    .select('employee_id').eq('room_id', roomId)
+  const members = (data || []).filter(m => m.employee_id !== excludeId)
+  if (!members.length) return
+  await supabase.from('notifications').insert(
+    members.map(m => ({ employee_id: m.employee_id, type, title, body, link }))
+  )
 }
 
-// ── Get or create a DM room between two employees ─────────────
-export async function getOrCreateDM(myId, theirId) {
+// ── Get or create DM room between two employees ───────────────
+export async function getOrCreateDM(emp1Id, emp2Id) {
   // Find existing DM room both are members of
-  const { data: myRooms } = await supabase
-    .from('chat_members').select('room_id').eq('employee_id', myId)
-  const myRoomIds = (myRooms || []).map(r => r.room_id)
+  const { data: rooms1 } = await supabase.from('chat_room_members').select('room_id').eq('employee_id', emp1Id)
+  const { data: rooms2 } = await supabase.from('chat_room_members').select('room_id').eq('employee_id', emp2Id)
+  const ids1 = new Set((rooms1 || []).map(r => r.room_id))
+  const shared = (rooms2 || []).find(r => ids1.has(r.room_id))
 
-  if (myRoomIds.length > 0) {
-    const { data: shared } = await supabase
-      .from('chat_members')
-      .select('room_id, chat_rooms(type)')
-      .eq('employee_id', theirId)
-      .in('room_id', myRoomIds)
-    const dm = (shared || []).find(r => r.chat_rooms?.type === 'direct')
-    if (dm) return dm.room_id
+  if (shared) {
+    // Verify it's a direct room
+    const { data: room } = await supabase.from('chat_rooms').select('*').eq('id', shared.room_id).eq('type', 'direct').single()
+    if (room) return room
   }
 
   // Create new DM room
-  const { data: room } = await supabase
-    .from('chat_rooms').insert([{ type: 'direct' }]).select().single()
-  if (!room) return null
-
-  await supabase.from('chat_members').insert([
-    { room_id: room.id, employee_id: myId },
-    { room_id: room.id, employee_id: theirId }
+  const { data: room, error } = await supabase.from('chat_rooms').insert([{ type: 'direct' }]).select().single()
+  if (error || !room) return null
+  await supabase.from('chat_room_members').insert([
+    { room_id: room.id, employee_id: emp1Id },
+    { room_id: room.id, employee_id: emp2Id },
   ])
-  return room.id
+  return room
 }
 
-// ── Get or create a brand group room ─────────────────────────
-export async function getOrCreateBrandRoom(brandId, brandName) {
-  const { data: existing } = await supabase
-    .from('chat_rooms').select('id').eq('type', 'brand').eq('brand_id', brandId).single()
-  if (existing) return existing.id
-
-  const { data: room } = await supabase
-    .from('chat_rooms').insert([{ type: 'brand', name: `${brandName} Team`, brand_id: brandId }]).select().single()
-  return room?.id || null
+// ── Ensure brand group rooms exist ────────────────────────────
+export async function ensureBrandRooms(brands) {
+  if (!supabase || !brands?.length) return
+  for (const brand of brands) {
+    const { data } = await supabase.from('chat_rooms').select('id').eq('type', 'brand').eq('brand_id', brand.id).single()
+    if (!data) {
+      const { data: room } = await supabase.from('chat_rooms')
+        .insert([{ type: 'brand', name: `${brand.name} Team`, brand_id: brand.id }])
+        .select().single()
+      if (room) {
+        // Add all brand employees
+        const { data: emps } = await supabase.from('employees').select('id').eq('brand_id', brand.id).eq('is_active', true)
+        if (emps?.length) {
+          await supabase.from('chat_room_members').insert(emps.map(e => ({ room_id: room.id, employee_id: e.id })))
+        }
+      }
+    }
+  }
 }
 
-// ── Get or create HQ room ─────────────────────────────────────
-export async function getOrCreateHQRoom() {
-  const { data: existing } = await supabase
-    .from('chat_rooms').select('id').eq('type', 'hq').single()
-  if (existing) return existing.id
-
-  const { data: room } = await supabase
-    .from('chat_rooms').insert([{ type: 'hq', name: 'Mobtech HQ — All Company' }]).select().single()
-  return room?.id || null
+// ── Ensure general room exists ────────────────────────────────
+export async function ensureGeneralRoom() {
+  if (!supabase) return null
+  const { data } = await supabase.from('chat_rooms').select('id').eq('type', 'general').single()
+  if (data) return data
+  const { data: room } = await supabase.from('chat_rooms')
+    .insert([{ type: 'general', name: 'Mobtech General' }])
+    .select().single()
+  return room
 }
 
 // ── Mark room as read ─────────────────────────────────────────
 export async function markRoomRead(roomId, employeeId) {
-  await supabase.from('chat_members')
-    .update({ last_read: new Date().toISOString() })
+  if (!supabase) return
+  await supabase.from('chat_room_members')
+    .update({ last_read_at: new Date().toISOString() })
     .eq('room_id', roomId).eq('employee_id', employeeId)
 }
 
-// ── Get unread count for employee ────────────────────────────
+// ── Get unread count for employee ─────────────────────────────
 export async function getUnreadCount(employeeId) {
-  const { data: memberships } = await supabase
-    .from('chat_members').select('room_id,last_read').eq('employee_id', employeeId)
-  if (!memberships?.length) return 0
-
-  let total = 0
-  for (const m of memberships) {
-    const { count } = await supabase
-      .from('chat_messages')
-      .select('id', { count: 'exact', head: true })
-      .eq('room_id', m.room_id)
-      .gt('created_at', m.last_read || '1970-01-01')
-      .neq('sender_id', employeeId)
-    total += count || 0
-  }
-  return total
+  if (!supabase) return 0
+  const { count } = await supabase.from('notifications')
+    .select('id', { count: 'exact', head: true })
+    .eq('employee_id', employeeId).eq('is_read', false)
+  return count || 0
 }
 
-// ── Request browser push permission ──────────────────────────
-export async function requestPushPermission() {
-  if (!('Notification' in window)) return false
-  if (Notification.permission === 'granted') return true
-  const result = await Notification.requestPermission()
-  return result === 'granted'
-}
-
-// ── Send browser push notification ───────────────────────────
-export function pushNotify(title, body, icon) {
-  if (Notification.permission !== 'granted') return
-  const n = new Notification(title, {
-    body, icon: icon || 'https://res.cloudinary.com/drefakuj9/image/upload/v1774577980/WhatsApp_Image_2026-03-27_at_03.12.01_jwlakp.jpg',
-    badge: 'https://res.cloudinary.com/drefakuj9/image/upload/v1774577980/WhatsApp_Image_2026-03-27_at_03.12.01_jwlakp.jpg',
-    tag: 'mobtech-notification',
-    silent: false,
-  })
-  n.onclick = () => { window.focus(); n.close() }
+export function timeAgoChat(date) {
+  const diff = Date.now() - new Date(date).getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 1) return 'just now'
+  if (m < 60) return `${m}m`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h`
+  return new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }

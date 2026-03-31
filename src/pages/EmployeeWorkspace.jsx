@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { getEmployee, clearEmployee, STATUS, PRIORITY, timeAgo, formatBytes, logActivity, isLeader } from '../lib/workspace'
 import WorkspaceLayout from '../components/workspace/shared/WorkspaceLayout'
 import LeaderTasks from '../components/workspace/employee/LeaderTasks'
+import WsChat from '../components/workspace/employee/WsChat'
 import '../workspace.css'
 
 const FILE_ICONS = { pdf: '📄', doc: '📝', docx: '📝', xls: '📊', xlsx: '📊', jpg: '🖼', jpeg: '🖼', png: '🖼', zip: '🗜' }
@@ -244,6 +245,7 @@ export default function EmployeeWorkspace() {
       { path: '/workspace', icon: '⬡', label: 'Home' },
       { path: '/workspace/tasks', icon: '◻', label: 'My Tasks' },
       ...(leader ? [{ path: '/workspace/team-tasks', icon: '◈', label: 'Team Tasks' }] : []),
+      { path: '/workspace/chat', icon: '💬', label: 'Chat' },
       { path: '/workspace/documents', icon: '◫', label: 'Documents' },
       { path: '/workspace/announcements', icon: '◬', label: 'Announcements' },
     ]}
@@ -255,6 +257,7 @@ export default function EmployeeWorkspace() {
         <Route path="/" element={<EmployeeHome employee={employee} />} />
         <Route path="/tasks" element={<MyTasks employee={employee} />} />
         {leader && <Route path="/team-tasks" element={<LeaderTasks employee={employee} />} />}
+        <Route path="/chat" element={<WsChat />} />
         <Route path="/documents" element={<MyDocuments employee={employee} />} />
         <Route path="/announcements" element={<MyAnnouncements employee={employee} />} />
       </Routes>
